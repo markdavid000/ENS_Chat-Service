@@ -41,33 +41,33 @@ contract NameServiceTest is Test {
 
         // assert event emitted
         vm.expectEmit(true, true, false, false);
-        emit LibENSEvents.NameRegistered(A, "test");
-        emit LibENSEvents.AvatarUpdated(A, "test");
-        nameServiceContract.registerNameService("test", "test");
+        emit LibENSEvents.EnsRegistered(A, "test", "test");
+        emit LibENSEvents.DPUpdated(A, "test");
+        nameServiceContract.registerNameService("test", "test", "test");
     }
 
     function testRegisterNameTwiceRevert() public {
         switchSigner(A);
 
-        nameServiceContract.registerNameService("test", "test");
+        nameServiceContract.registerNameService("test", "test", "test");
 
         switchSigner(B);
         // assert revert
         vm.expectRevert(
-            abi.encodeWithSelector(LibENSErrors.NameAlreadyTaken.selector)
+            abi.encodeWithSelector(LibENSErrors.EnsAlreadyTaken.selector)
         );
-        nameServiceContract.registerNameService("test", "avatarTest");
+        nameServiceContract.registerNameService("test", "avatarTest", "test");
     }
 
     function testGetDomainDetails() public {
         switchSigner(A);
-        nameServiceContract.registerNameService("test", "test");
+        nameServiceContract.registerNameService("test", "test", "test");
 
         (
             string memory _domainName,
             string memory _avatarURI,
             address _owner
-        ) = nameServiceContract.getDomainDetails("test");
+        ) = nameServiceContract.getEnsDetails("test");
 
         assert(
             keccak256(abi.encodePacked(_domainName)) ==
@@ -82,18 +82,18 @@ contract NameServiceTest is Test {
 
     function testGetDomainDetailsFailForUnregisteredDomains() public {
         vm.expectRevert(
-            abi.encodeWithSelector(LibENSErrors.DomainNotRegistered.selector)
+            abi.encodeWithSelector(LibENSErrors.EnsNotRegistered.selector)
         );
-        nameServiceContract.getDomainDetails("test");
+        nameServiceContract.getEnsDetails("test");
     }
 
     function testUpdateAvatarURI() public {
         switchSigner(A);
-        nameServiceContract.registerNameService("test", "test");
+        nameServiceContract.registerNameService("test", "test", "test");
 
-        nameServiceContract.updateDomainAvatar("test", "ipfs://newAvatar.jpg");
+        nameServiceContract.updateEnsDP("test", "ipfs://newAvatar.jpg");
 
-        (, string memory _avatarURI, ) = nameServiceContract.getDomainDetails(
+        (, string memory _avatarURI, ) = nameServiceContract.getEnsDetails(
             "test"
         );
 
@@ -103,23 +103,23 @@ contract NameServiceTest is Test {
         );
     }
     function testUpdateAvatarURIFailWhenCalledForDomainNotOwned() public {
-        nameServiceContract.registerNameService("test", "test");
+        nameServiceContract.registerNameService("test", "test", "test");
 
         switchSigner(A);
 
         vm.expectRevert(
-            abi.encodeWithSelector(LibENSErrors.NotDomainOwner.selector)
+            abi.encodeWithSelector(LibENSErrors.NotEnsOwner.selector)
         );
-        nameServiceContract.updateDomainAvatar("test", "ipfs://newAvatar.jpg");
+        nameServiceContract.updateEnsDP("test", "ipfs://newAvatar.jpg");
     }
 
     function testUpdateAvatarURIFailForUnregigsteredDomains() public {
         switchSigner(A);
 
         vm.expectRevert(
-            abi.encodeWithSelector(LibENSErrors.DomainNotRegistered.selector)
+            abi.encodeWithSelector(LibENSErrors.EnsNotRegistered.selector)
         );
-        nameServiceContract.updateDomainAvatar("test", "ipfs://newAvatar.jpg");
+        nameServiceContract.updateEnsDP("test", "ipfs://newAvatar.jpg");
     }
 
     function switchSigner(address _newSigner) public {

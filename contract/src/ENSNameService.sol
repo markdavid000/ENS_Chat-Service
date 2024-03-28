@@ -22,9 +22,9 @@ contract NameService {
         }
 
         return (
-            domains[_ensName].owner,
             domains[_ensName].ensName,
-            domains[_ensName].DisplayPictureURI
+            domains[_ensName].DisplayPictureURI,
+            domains[_ensName].owner
         );
     }
 

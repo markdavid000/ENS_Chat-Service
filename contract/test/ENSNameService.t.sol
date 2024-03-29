@@ -2,19 +2,19 @@
 pragma solidity ^0.8.13;
 
 import {Test, console2} from "../lib/forge-std/src/Test.sol";
-import {NameService} from "../src/ENSNameService.sol";
+import {ENSNameService} from "../src/ENSNameService.sol";
 
 import {LibENSErrors, LibENSEvents} from "../src/libraries/LibENSNameService.sol";
 
 contract NameServiceTest is Test {
-    NameService nameServiceContract;
+    ENSNameService nameServiceContract;
 
     address A = address(0xa);
     address B = address(0xb);
     address C = address(0xc);
 
     function setUp() public {
-        nameServiceContract = new NameService();
+        nameServiceContract = new ENSNameService();
 
         A = mkaddr("user A");
         B = mkaddr("user B");
@@ -24,7 +24,7 @@ contract NameServiceTest is Test {
     function testRegisterNameService() public {
         switchSigner(A);
 
-        nameServiceContract.registerNameService("test", "test", "test");
+        nameServiceContract.registerNameService("test", "test");
         assert(nameServiceContract.nameToAddress("test") != address(0));
 
         (string memory _domainName, , address _owner) = nameServiceContract
@@ -41,27 +41,27 @@ contract NameServiceTest is Test {
 
         // assert event emitted
         vm.expectEmit(true, true, false, false);
-        emit LibENSEvents.EnsRegistered(A, "test", "test");
+        emit LibENSEvents.EnsRegistered(A, "test");
         emit LibENSEvents.DPUpdated(A, "test");
-        nameServiceContract.registerNameService("test", "test", "test");
+        nameServiceContract.registerNameService("test", "test");
     }
 
     function testRegisterNameTwiceRevert() public {
         switchSigner(A);
 
-        nameServiceContract.registerNameService("test", "test", "test");
+        nameServiceContract.registerNameService("test", "test");
 
         switchSigner(B);
         // assert revert
         vm.expectRevert(
             abi.encodeWithSelector(LibENSErrors.EnsAlreadyTaken.selector)
         );
-        nameServiceContract.registerNameService("test", "avatarTest", "test");
+        nameServiceContract.registerNameService("test", "avatarTest");
     }
 
     function testGetDomainDetails() public {
         switchSigner(A);
-        nameServiceContract.registerNameService("test", "test", "test");
+        nameServiceContract.registerNameService("test", "test");
 
         (
             string memory _domainName,
@@ -89,7 +89,7 @@ contract NameServiceTest is Test {
 
     function testUpdateAvatarURI() public {
         switchSigner(A);
-        nameServiceContract.registerNameService("test", "test", "test");
+        nameServiceContract.registerNameService("test", "test");
 
         nameServiceContract.updateEnsDP("test", "ipfs://newAvatar.jpg");
 
@@ -103,7 +103,7 @@ contract NameServiceTest is Test {
         );
     }
     function testUpdateAvatarURIFailWhenCalledForDomainNotOwned() public {
-        nameServiceContract.registerNameService("test", "test", "test");
+        nameServiceContract.registerNameService("test", "test");
 
         switchSigner(A);
 

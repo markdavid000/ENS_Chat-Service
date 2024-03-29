@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 library LibENSEvents {
-    event EnsRegistered(address user, string ensName, string userName);
+    event EnsRegistered(address user, string ensName);
     event DPUpdated(address user, string ensName);
 }
 

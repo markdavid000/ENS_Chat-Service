@@ -3,11 +3,10 @@ pragma solidity ^0.8.13;
 
 import {LibENSErrors, LibENSEvents} from "./libraries/LibENSNameService.sol";
 
-contract NameService {
+contract ENSNameService {
     struct DomainDetails {
         address owner;
         string ensName;
-        string userName;
         string DisplayPictureURI;
     }
 
@@ -30,7 +29,6 @@ contract NameService {
 
     function registerNameService(
         string memory _ensName,
-        string memory _userName,
         string memory _displayPictureURI
     ) public {
         if (nameToAddress[_ensName] != address(0)) {
@@ -40,11 +38,10 @@ contract NameService {
         domains[_ensName] = DomainDetails(
             msg.sender,
             _ensName,
-            _userName,
             _displayPictureURI
         );
 
-        emit LibENSEvents.EnsRegistered(msg.sender, _ensName, _userName);
+        emit LibENSEvents.EnsRegistered(msg.sender, _ensName);
     }
 
     function updateEnsDP(

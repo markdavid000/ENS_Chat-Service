@@ -1,5 +1,6 @@
-import { useState } from "react";
+import React from "react";
 import { configureWeb3Modal } from "./connection";
+import { ToastContainer } from "react-toastify";
 import "./output.css";
 import Header from "./components/Header";
 import RegisterENS from "./components/RegisterENS";
@@ -11,6 +12,7 @@ function App() {
     <>
       <Header />
       <RegisterENS />
+      <ToastContainer theme="light" hideProgressBar={true} />
     </>
   );
 }

@@ -1,35 +1,24 @@
-import React, { useState } from "react";
-import useRegName from "../hooks/useRegName";
+import { useState } from "react";
+import { ethers } from "ethers";
+import { getProposalsContract } from "../constants/contracts";
+import { toast } from "react-toastify";
+import { getProvider } from "../constants/providers";
+import { useWeb3ModalProvider } from "@web3modal/ethers/react";
 
-const RegisterENS = () => {
+export default function RegisterENS() {
+  const [selectedFile, setSelectedFile] = useState();
   const [ensName, setEnsName] = useState("");
-  const [userName, setUserName] = useState("");
-  const [displayPicture, setDisplayPicture] = useState(""); // For storing the file object
-  const [result, setResult] = useState("");
-  const [image, setImage] = useState("");
+  const { walletProvider } = useWeb3ModalProvider();
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setDisplayPicture(file);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const uploadDisplayPicture = async () => {
-    if (!displayPicture) {
-      return "";
-    }
+    const formData = new FormData();
 
-    try {
-      const formData = new FormData();
-      formData.append("file", displayPicture);
-      const metadata = JSON.stringify({
-        name: "File name",
-      });
-      formData.append("pinataMetadata", metadata);
-
-      const options = JSON.stringify({
-        cidVersion: 0,
-      });
-      formData.append("pinataOptions", options);
+    if (!selectedFile && !ensName) {
+      return toast.error("Please select an image or enter an ensName");
+    } else {
+      formData.append("file", selectedFile);
 
       const res = await fetch(
         "https://api.pinata.cloud/pinning/pinFileToIPFS",
@@ -41,61 +30,96 @@ const RegisterENS = () => {
           body: formData,
         }
       );
-      const resData = await res.json();
-      setImage(`${import.meta.env.VITE_GATEWAY_URL}${resData.IpfsHash}`);
-      console.log(resData);
-    } catch (error) {
-      console.log(error);
+
+      const fileUrl = await res.json();
+
+      const readWriteProvider = getProvider(walletProvider);
+      const signer = await readWriteProvider.getSigner();
+
+      const contract = getProposalsContract(signer);
+
+      try {
+        const tx = await contract.registerNameService(
+          ethers.encodeBytes32String(ensName),
+          fileUrl.IpfsHash
+        );
+        const receipt = await tx.wait();
+
+        console.log("receipt: ", receipt);
+
+        let notification;
+
+        if (receipt.status) {
+          notification = "Account created successfully";
+        } else {
+          return toast.error("Account creation failed");
+        }
+
+        toast.success(notification);
+      } catch (error) {
+        console.log(error);
+
+        let errorMessage;
+
+        if (error.reason === "rejected") {
+          errorMessage = "Transaction rejected";
+        } else {
+          console.log("Error", error);
+        }
+
+        return toast.error(errorMessage);
+      }
     }
-  };
 
-  const displayPictureURI = uploadDisplayPicture();
-
-  const handleReg = useRegName(ensName, userName, displayPictureURI);
-
-  const handleRegister = async () => {
-    try {
-      handleReg;
-      setResult(`Registered ${ensName}`);
-    } catch (error) {
-      setResult(`Error: ${error.message}`);
-    }
+    setEnsName("");
+    setSelectedFile();
   };
 
   return (
-    <>
-      <div>
-        <img
-          className="w-20 h-20 rounded-full"
-          src={image}
-          alt="Rounded avatar"
-        />
-      </div>
-      <div>
+    <div className="flex items-center justify-center w-full text-white">
+      <div className="w-full max-w-sm flex flex-col gap-10 items-center bg-[#201D29] rounded-md p-10">
         <input
-          type="text"
-          placeholder="ENS Name"
-          value={ensName}
-          onChange={(e) => setEnsName(e.target.value)}
+          type="file"
+          accept="image/*"
+          hidden
+          className="hidden"
+          id="selectFile"
+          onChange={(e) => setSelectedFile(e.target.files[0])}
         />
-        <input
-          type="text"
-          placeholder="User Name"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-        />
-        <input type="file" onChange={handleFileChange} />
-        <button onClick={handleRegister}>Register</button>
-        {/* <button onClick={handleUpdateDP}>Update Display Picture</button>
-        <button onClick={handleUpdateUserName}>Update User Name</button>
-        <button onClick={handleGetDetails}>Get Details</button> */}
-      </div>
-      <div>
-        <h2>Result:</h2>
-        <pre>{result}</pre>
-      </div>
-    </>
-  );
-};
+        <label
+          htmlFor="selectFile"
+          className="rounded-lg w-32 h-32 bg-secondary flex items-center justify-center cursor-pointer border border-dashed"
+        >
+          {selectedFile ? (
+            <img
+              src={URL.createObjectURL(selectedFile)}
+              className="w-full h-full object-cover rounded-lg"
+              alt="Selected File"
+            />
+          ) : (
+            <img src="./upload_icon.png" alt="cloud" />
+          )}
+        </label>
 
-export default RegisterENS;
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col my-4 w-full gap-4 items-center"
+        >
+          <div className="space-y-2 flex flex-col w-full">
+            <label className="text-sm">ENS Name</label>
+            <input
+              className="mt-1 bg-transparent border border-gray-700 px-2 py-2 shadow-sm focus:outline-none hover:bg-[#292631] w-full rounded-md sm:text-sm placeholder:text-gray-500"
+              placeholder="ojukwu.eth"
+              value={ensName}
+              onChange={(e) => setEnsName(e.target.value)}
+            />
+          </div>
+
+          <button className="w-full bg-[#6D6FF3] text-white focus:outline-none">
+            Register
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}

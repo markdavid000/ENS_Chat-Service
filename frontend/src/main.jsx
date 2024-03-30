@@ -4,11 +4,12 @@ import { Theme } from "@radix-ui/themes";
 import "react-toastify/dist/ReactToastify.css";
 import App from "./App.jsx";
 import "./index.css";
+import { BrowserRouter } from "react-router-dom";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Theme>
+    <BrowserRouter>
       <App />
-    </Theme>
+    </BrowserRouter>
   </React.StrictMode>
 );

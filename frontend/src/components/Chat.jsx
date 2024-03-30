@@ -7,6 +7,7 @@ import {
   useWeb3ModalProvider,
   useWeb3ModalAccount,
 } from "@web3modal/ethers/react";
+import { Item } from "@radix-ui/themes/dist/cjs/components/checkbox-group.primitive";
 
 export default function Chat() {
   const [senderEnsName, setSenderEnsName] = useState("");
@@ -16,6 +17,7 @@ export default function Chat() {
   const [{ data: registeredUsers }, setRegisteredUsers] = useState({
     data: [],
   });
+  const [selectedUser, setSelectorUser] = useState();
   const { walletProvider } = useWeb3ModalProvider();
   const { address } = useWeb3ModalAccount();
 
@@ -43,6 +45,7 @@ export default function Chat() {
 
   const selectReceiver = (selectedUser) => {
     setReceiverEnsName(selectedUser);
+    setSelectorUser(selectedUser);
   };
 
   const sendMessage = async () => {
@@ -90,20 +93,27 @@ export default function Chat() {
   }, []);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-[85vh]">
       {/* Sidebar */}
-      <div className="w-1/4 bg-gray-200 p-4">
-        <h2 className="text-xl font-semibold mb-4">Contacts</h2>
-        <ul>
+      <div className="w-1/4 bg-[#201D29] p-4">
+        <h2 className="text-xl font-semibold mb-4 text-white">Contacts</h2>
+        <ul className="flex flex-col gap-3">
           {registeredUsers.map((user, index) => (
             <li
               key={index}
-              onClick={() => selectReceiver(user)}
-              className={`cursor-pointer p-2 rounded-lg hover:bg-gray-300 ${
-                selectedUser === user ? "bg-gray-300" : ""
+              onClick={() => selectReceiver(user.ensName)}
+              className={`text-white flex items-center gap-4 cursor-pointer p-2 rounded-lg hover:bg-[#31306B] ${
+                selectedUser === user.ensName ? "bg-[#31306B]" : ""
               }`}
             >
-              {user}
+              <img
+                src={`${import.meta.env.VITE_GATEWAY_URL}${
+                  user.DisplayPictureURI
+                }`}
+                alt=""
+                className="w-10 h-10 rounded-md"
+              />
+              {user.ensName}
             </li>
           ))}
         </ul>
@@ -112,15 +122,15 @@ export default function Chat() {
       {/* Chat Area */}
       <div className="flex-1 flex flex-col justify-between">
         {/* Chat Header */}
-        <div className="bg-whatsapp-light text-white py-3 px-4 flex items-center justify-between">
+        <div className="bg-whatsapp-light text-[white] py-3 px-4 flex items-center justify-between">
           <span className="text-lg font-semibold">
             {selectedUser ? selectedUser : "Select a contact"}
           </span>
-          <span>{senderEnsName}</span>
+          {/* <span>{senderEnsName}</span> */}
         </div>
 
         {/* Messages */}
-        <div className="flex-1 bg-gray-100 px-4 py-2 overflow-y-scroll">
+        <div className="flex-1 bg-[#17141f] px-4 py-2 overflow-y-auto">
           {messages.map((msg, index) => (
             <div
               key={index}
@@ -149,24 +159,24 @@ export default function Chat() {
         </div>
 
         {/* Input Area */}
-        <div className="bg-whatsapp-light flex items-center px-4 py-2">
+        <div className="bg-whatsapp-light flex items-center px-4 py-2 gap-1">
           <input
             type="text"
             value={messageContent}
             onChange={(e) => setMessageContent(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 mr-2 bg-white focus:outline-none border rounded-full px-4 py-2"
+            className="mt-1 bg-transparent border border-gray-700 px-3 py-3 shadow-sm focus:outline-none focus:bg-[#292631] hover:bg-[#292631] w-full rounded-full sm:text-sm placeholder:text-gray-500 text-gray-300"
           />
           <button
             onClick={sendMessage}
             disabled={!selectedUser || !messageContent}
-            className={`bg-whatsapp-green hover:bg-whatsapp-dark text-white font-bold py-2 px-4 rounded-full ${
+            className={`bg-transparent border-none outline-none focus:outline-none focus:border-none ${
               !selectedUser || !messageContent
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}
           >
-            Send
+            <img src="./send.png" alt="" />
           </button>
         </div>
       </div>

@@ -4,11 +4,13 @@ import { getProposalsContract } from "../constants/contracts";
 import { toast } from "react-toastify";
 import { getProvider } from "../constants/providers";
 import { useWeb3ModalProvider } from "@web3modal/ethers/react";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterENS() {
   const [selectedFile, setSelectedFile] = useState();
   const [ensName, setEnsName] = useState("");
   const { walletProvider } = useWeb3ModalProvider();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,6 +53,7 @@ export default function RegisterENS() {
 
         if (receipt.status) {
           notification = "Account created successfully";
+          navigate("/chat");
         } else {
           return toast.error("Account creation failed");
         }
@@ -76,7 +79,7 @@ export default function RegisterENS() {
   };
 
   return (
-    <div className="flex items-center justify-center w-full text-white">
+    <div className="flex items-center justify-center w-full text-white pt-28">
       <div className="w-full max-w-sm flex flex-col gap-10 items-center bg-[#201D29] rounded-md p-10">
         <input
           type="file"
@@ -88,7 +91,7 @@ export default function RegisterENS() {
         />
         <label
           htmlFor="selectFile"
-          className="rounded-lg w-32 h-32 bg-secondary flex items-center justify-center cursor-pointer border border-dashed"
+          className="rounded-lg w-32 h-32 bg-secondary flex items-center justify-center cursor-pointer border border-dashed border-[#31306B]"
         >
           {selectedFile ? (
             <img
@@ -115,7 +118,7 @@ export default function RegisterENS() {
             />
           </div>
 
-          <button className="w-full bg-[#6D6FF3] text-white focus:outline-none">
+          <button className="w-full bg-[#31306B] text-white focus:outline-none">
             Register
           </button>
         </form>

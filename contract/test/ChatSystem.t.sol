@@ -3,16 +3,18 @@ pragma solidity ^0.8.13;
 
 import {Test, console2} from "../lib/forge-std/src/Test.sol";
 import {ChatDapp} from "../src/ChatSystem.sol";
+import "./ENSNameService.t.sol";
 
 contract ChatTest is Test {
     ChatDapp chatContract;
+    ENSNameService _nameService;
 
     address A = address(0xa);
     address B = address(0xb);
     address C = address(0xc);
 
     function setUp() public {
-        chatContract = new ChatDapp(0x824Cb9e9d41cC1608395Bfc54B19e0C3f5f780Da);
+        chatContract = new ChatDapp(address(_nameService));
 
         A = mkaddr("user A");
         B = mkaddr("user B");

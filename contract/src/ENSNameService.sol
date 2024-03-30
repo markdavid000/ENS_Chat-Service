@@ -12,11 +12,11 @@ contract ENSNameService {
 
     mapping(string => address) public nameToAddress;
     mapping(string => DomainDetails) public domains;
-    string[] public registeredNames; // Array to store registered names
+    DomainDetails[] public registeredNames; // Array to store registered names
 
     function getEnsDetails(
         string memory _ensName
-    ) public view returns (string memory, string memory, address) {
+    ) public view returns ( string memory, string memory, address) {
         if (nameToAddress[_ensName] == address(0)) {
             revert LibENSErrors.EnsNotRegistered();
         }
@@ -36,12 +36,12 @@ contract ENSNameService {
             revert LibENSErrors.EnsAlreadyTaken();
         }
         nameToAddress[_ensName] = msg.sender;
-        domains[_ensName] = DomainDetails(
-            _ensName,
-            _displayPictureURI,
-            msg.sender
-        );
-        registeredNames.push(_ensName); // Add to registered names array
+        domains[_ensName] = DomainDetails({
+            owner: msg.sender,
+            ensName: _ensName,
+            DisplayPictureURI: _displayPictureURI
+        });
+        registeredNames.push(domains[_ensName]); // Add to registered names array
 
         emit LibENSEvents.EnsRegistered(msg.sender, _ensName);
     }
@@ -76,7 +76,7 @@ contract ENSNameService {
         emit LibENSEvents.DPUpdated(msg.sender, _ensName);
     }
 
-    function getAllRegisteredUsers() public view returns (string[] memory) {
+    function getAllRegisteredUsers() public view returns (DomainDetails[] memory) {
         return registeredNames;
     }
 }

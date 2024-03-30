@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 import "./output.css";
 import Header from "./components/Header";
 import RegisterENS from "./components/RegisterENS";
+import Chat from "./components/Chat";
 
 configureWeb3Modal();
 
@@ -12,6 +13,7 @@ function App() {
     <>
       <Header />
       <RegisterENS />
+      <Chat />
       <ToastContainer theme="light" hideProgressBar={true} />
     </>
   );

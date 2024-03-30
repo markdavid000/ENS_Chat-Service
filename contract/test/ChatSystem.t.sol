@@ -12,7 +12,7 @@ contract ChatTest is Test {
     address C = address(0xc);
 
     function setUp() public {
-        chatContract = new ChatDapp();
+        chatContract = new ChatDapp(0x0a88C872A04DD6d4ECC2c471011876BcD7D5507E);
 
         A = mkaddr("user A");
         B = mkaddr("user B");

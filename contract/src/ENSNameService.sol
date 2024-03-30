@@ -5,13 +5,14 @@ import {LibENSErrors, LibENSEvents} from "./libraries/LibENSNameService.sol";
 
 contract ENSNameService {
     struct DomainDetails {
-        address owner;
         string ensName;
         string DisplayPictureURI;
+        address owner;
     }
 
     mapping(string => address) public nameToAddress;
     mapping(string => DomainDetails) public domains;
+    string[] public registeredNames; // Array to store registered names
 
     function getEnsDetails(
         string memory _ensName
@@ -36,10 +37,11 @@ contract ENSNameService {
         }
         nameToAddress[_ensName] = msg.sender;
         domains[_ensName] = DomainDetails(
-            msg.sender,
             _ensName,
-            _displayPictureURI
+            _displayPictureURI,
+            msg.sender
         );
+        registeredNames.push(_ensName); // Add to registered names array
 
         emit LibENSEvents.EnsRegistered(msg.sender, _ensName);
     }
@@ -72,5 +74,9 @@ contract ENSNameService {
 
         domains[_ensName].DisplayPictureURI = _userName;
         emit LibENSEvents.DPUpdated(msg.sender, _ensName);
+    }
+
+    function getAllRegisteredUsers() public view returns (string[] memory) {
+        return registeredNames;
     }
 }

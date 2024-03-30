@@ -40,7 +40,7 @@ export default function RegisterENS() {
 
       try {
         const tx = await contract.registerNameService(
-          ethers.encodeBytes32String(ensName),
+          ensName,
           fileUrl.IpfsHash
         );
         const receipt = await tx.wait();

@@ -7,7 +7,6 @@ import {
   useWeb3ModalProvider,
   useWeb3ModalAccount,
 } from "@web3modal/ethers/react";
-import { Item } from "@radix-ui/themes/dist/cjs/components/checkbox-group.primitive";
 
 export default function Chat() {
   const [senderEnsName, setSenderEnsName] = useState("");

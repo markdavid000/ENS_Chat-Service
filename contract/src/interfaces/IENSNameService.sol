@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-interface IENSNameService {
+library Struct {
     struct DomainDetails {
         address owner;
         string ensName;
         string DisplayPictureURI;
     }
+}
+interface IENSNameService {
     function getEnsDetails(string memory _ensName) external view returns (address, string memory, string memory);
-    function getAllRegisteredUsers() external view returns (DomainDetails[] memory);
+    function getAllRegisteredUsers() external view returns (Struct.DomainDetails[] memory);
 }

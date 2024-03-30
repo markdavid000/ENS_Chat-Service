@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.0;
 
-import "./interfaces/IENSNameService.sol";
+import {Struct, IENSNameService} from "./interfaces/IENSNameService.sol";
 
 contract ChatDapp {
     struct Message {
@@ -19,6 +19,8 @@ contract ChatDapp {
     );
 
     IENSNameService public nameService;
+
+    Struct.DomainDetails[] registeredName;
 
     constructor(address _nameServiceAddress) {
         nameService = IENSNameService(_nameServiceAddress);
@@ -54,7 +56,7 @@ contract ChatDapp {
         return chatHistory[msg.sender][receiverAddress];
     }
 
-    function getRegisteredUsers() external view returns (string[] memory) {
+    function getRegisteredUsers() external view returns (Struct.DomainDetails[] memory) {
         return nameService.getAllRegisteredUsers();
     }
 }

@@ -90,83 +90,85 @@ export default function Chat() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center">
-      <h1 className="text-3xl font-bold mt-8 mb-4 text-primary">Chat DApp</h1>
-      <div className="w-full max-w-xl bg-white shadow-md rounded-lg p-6">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">
-            Select a user to chat with:
-          </h3>
-          <ul className="space-y-2">
-            {registeredUsers.map((user, index) => (
-              <li
-                key={index}
-                className="cursor-pointer hover:bg-gray-100 p-2 rounded-md flex items-center gap-4"
-                onClick={() => selectReceiver(user.ensName)}
-              >
-                <img
-                  src={`https://ipfs.io/ipfs/${user.DisplayPictureURI}`}
-                  alt=""
-                  className="w-10 h-10 rounded-md"
-                />
-                {user.ensName}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="mb-4">
-          <label
-            htmlFor="receiverEnsName"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Receiver ENS Name:
-          </label>
-          <input
-            id="receiverEnsName"
-            type="text"
-            value={receiverEnsName}
-            onChange={(e) => setReceiverEnsName(e.target.value)}
-            className="mt-1 focus:ring-primary focus:border-primary block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-            disabled
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            htmlFor="messageContent"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Message:
-          </label>
-          <input
-            id="messageContent"
-            type="text"
-            value={messageContent}
-            onChange={(e) => setMessageContent(e.target.value)}
-            className="mt-1 focus:ring-primary focus:border-primary block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-          />
-        </div>
-        <button
-          onClick={sendMessage}
-          className="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Send Message
-        </button>
-      </div>
-
-      <div className="mt-8 w-full max-w-xl bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Messages</h2>
-        <ul className="space-y-4">
-          {messages.map((msg, index) => (
-            <li key={index} className="border p-4 rounded-lg">
-              <strong className="text-primary">From:</strong> {msg.sender}
-              <br />
-              <strong className="text-primary">To:</strong> {msg.receiver}
-              <br />
-              <strong className="text-primary">Content:</strong> {msg.content}
-              <br />
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      <div className="w-1/4 bg-gray-200 p-4">
+        <h2 className="text-xl font-semibold mb-4">Contacts</h2>
+        <ul>
+          {registeredUsers.map((user, index) => (
+            <li
+              key={index}
+              onClick={() => selectReceiver(user)}
+              className={`cursor-pointer p-2 rounded-lg hover:bg-gray-300 ${
+                selectedUser === user ? "bg-gray-300" : ""
+              }`}
+            >
+              {user}
             </li>
           ))}
         </ul>
+      </div>
+
+      {/* Chat Area */}
+      <div className="flex-1 flex flex-col justify-between">
+        {/* Chat Header */}
+        <div className="bg-whatsapp-light text-white py-3 px-4 flex items-center justify-between">
+          <span className="text-lg font-semibold">
+            {selectedUser ? selectedUser : "Select a contact"}
+          </span>
+          <span>{senderEnsName}</span>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 bg-gray-100 px-4 py-2 overflow-y-scroll">
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`mb-4 ${
+                msg.sender === senderEnsName ? "self-end" : "self-start"
+              }`}
+            >
+              <div
+                className={`rounded-lg p-2 max-w-md ${
+                  msg.sender === senderEnsName
+                    ? "bg-whatsapp-green text-white"
+                    : "bg-whatsapp-light"
+                }`}
+              >
+                {msg.content}
+              </div>
+              <div
+                className={`text-xs ${
+                  msg.sender === senderEnsName ? "text-right" : ""
+                }`}
+              >
+                {msg.sender}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Input Area */}
+        <div className="bg-whatsapp-light flex items-center px-4 py-2">
+          <input
+            type="text"
+            value={messageContent}
+            onChange={(e) => setMessageContent(e.target.value)}
+            placeholder="Type a message..."
+            className="flex-1 mr-2 bg-white focus:outline-none border rounded-full px-4 py-2"
+          />
+          <button
+            onClick={sendMessage}
+            disabled={!selectedUser || !messageContent}
+            className={`bg-whatsapp-green hover:bg-whatsapp-dark text-white font-bold py-2 px-4 rounded-full ${
+              !selectedUser || !messageContent
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }`}
+          >
+            Send
+          </button>
+        </div>
       </div>
     </div>
   );
